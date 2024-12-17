@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Website</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Navbar -->
+  <nav class="bg-blue-600 p-6 text-white shadow-md">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-extrabold tracking-wider">Oil & Provision Shop</h1>
+      <ul class="flex space-x-8">
+        <li><a href="#" class="hover:underline text-lg font-medium">Home</a></li>
+        <li><a href="#products" class="hover:underline text-lg font-medium">Products</a></li>
+        <li><a href="#cart" class="hover:underline text-lg font-medium">Cart</a></li>
+        <li><a href="#location" class="hover:underline text-lg font-medium">Location</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="bg-cover bg-center h-96 flex items-center justify-center text-center" 
+          style="background-image: url('https://via.placeholder.com/1920x400');">
+    <div class="bg-black bg-opacity-60 p-8 rounded-lg">
+      <h2 class="text-white text-4xl font-extrabold mb-2">Welcome to Our Shop</h2>
+      <p class="text-gray-300 text-lg">Delivering quality oils and provisions to your doorstep.</p>
+    </div>
+  </header>
+
+  <!-- Products Section -->
+  <section id="products" class="container mx-auto my-16">
+    <h2 class="text-3xl font-extrabold text-center mb-12 text-gray-800">Our Products</h2>
+    <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+      <!-- Products dynamically added here -->
+    </div>
+  </section>
+
+  <!-- Cart Section -->
+  <section id="cart" class="bg-blue-50 py-16">
+    <div class="container mx-auto">
+      <h2 class="text-3xl font-extrabold text-gray-800 text-center mb-8">Your Cart</h2>
+      <div id="cart-items" class="bg-white p-6 shadow-lg rounded-lg"></div>
+      <div class="text-center mt-6">
+        <button onclick="checkout()" class="bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition">
+          Checkout
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Location Section -->
+  <section id="location" class="py-16 bg-gray-800 text-white">
+    <div class="container mx-auto text-center">
+      <h2 class="text-3xl font-extrabold mb-8">Our Location</h2>
+      <p class="mb-6">Visit our shop at the following location:</p>
+      <a href="https://g.co/kgs/xZGr9n2" target="_blank"
+         class="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-600 transition">
+        Open Location in Google Maps
+      </a>
+    </div>
+  </section>
+
+  <!-- JavaScript for Cart Functionality -->
+  <script>
+    const products = [
+      { name: "Groundnut Oil", sizes: ["1L", "1/2L", "1/4L", "5L", "15L"], img: "https://via.placeholder.com/300" },
+      { name: "Sesame Oil", sizes: ["1L", "1/2L", "1/4L", "5L", "15L"], img: "https://via.placeholder.com/300" },
+      { name: "Coconut Oil", sizes: ["1L", "1/2L", "1/4L", "5L", "15L"], img: "https://via.placeholder.com/300" },
+      { name: "Cow Ghee", sizes: ["1L", "1/2L", "1/4L", "5L", "15L"], img: "https://via.placeholder.com/300" },
+      { name: "Idly Podi", sizes: ["100g", "250g", "500g", "1kg"], img: "https://via.placeholder.com/300" },
+      { name: "Parupu Podi", sizes: ["100g", "250g", "500g", "1kg"], img: "https://via.placeholder.com/300" },
+    ];
+    
+    let cart = [];
+    
+    // Function to render products dynamically
+    function renderProducts() {
+      const productList = document.getElementById("product-list");
+      productList.innerHTML = ""; // Clear existing products
+      products.forEach((product) => {
+        const productCard = document.createElement("div");
+        productCard.className = "bg-white shadow-xl rounded-lg hover:scale-105 transition-transform";
+        productCard.innerHTML = `
+          <img src="${product.img}" alt="${product.name}" class="w-full h-40 object-cover rounded-t-lg">
+          <div class="p-4">
+            <h3 class="text-lg font-semibold text-gray-800">${product.name}</h3>
+            <p class="text-gray-500 mb-4">Available Sizes: ${product.sizes.join(", ")}</p>
+            ${product.sizes
+              .map(
+                (size) =>
+                  `<div class="flex items-center space-x-2 mb-2">
+                    <span class="text-gray-800">${size}</span>
+                    <input type="number" placeholder="Qty" min="1" class="border p-1 w-16" id="${product.name}-${size}">
+                    <button class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition"
+                            onclick="addToCart('${product.name}', '${size}')">
+                      Add
+                    </button>
+                  </div>`
+              )
+              .join("")}
+          </div>
+        `;
+        productList.appendChild(productCard);
+      });
+    }
+    
+    // Function to add items to the cart
+    function addToCart(productName, size) {
+      const quantityInput = document.getElementById(`${productName}-${size}`);
+      const quantity = parseInt(quantityInput.value);
+
+      if (!quantity || quantity <= 0) {
+        alert("Please enter a valid quantity.");
+        return;
+      }
+
+      const existingItem = cart.find(item => item.name === productName && item.size === size);
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        cart.push({ name: productName, size, quantity });
+      }
+
+      quantityInput.value = "";
+      renderCart();
+      alert(`${quantity} x ${productName} (${size}) has been added to your cart successfully!`);
+    }
+
+    // Function to render cart items
+    function renderCart() {
+      const cartItems = document.getElementById("cart-items");
+      cartItems.innerHTML = "";
+
+      if (cart.length === 0) {
+        cartItems.innerHTML = "<p class='text-gray-500'>Your cart is empty.</p>";
+        return;
+      }
+
+      cart.forEach((item, index) => {
+        const cartItem = document.createElement("div");
+        cartItem.className = "flex justify-between items-center border-b py-2";
+        cartItem.innerHTML = `
+          <div>
+            <h4 class="text-lg font-semibold">${item.name} - ${item.size}</h4>
+            <p>Quantity: ${item.quantity}</p>
+          </div>
+          <button class="text-red-600 hover:text-red-800" onclick="removeFromCart(${index})">Remove</button>
+        `;
+        cartItems.appendChild(cartItem);
+      });
+    }
+
+    // Remove items from the cart
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      renderCart();
+    }
+
+    // Checkout function - Redirect to WhatsApp
+    function checkout() {
+      if (cart.length === 0) {
+        alert("Your cart is empty. Add items before checkout.");
+        return;
+      }
+
+      let message = "Hello, I would like to place an order:\n\n";
+      cart.forEach((item, index) => {
+        message += `${index + 1}. ${item.name} - ${item.size} (Qty: ${item.quantity})\n`;
+      });
+      message += "\nPlease confirm my order. Thank you!";
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappURL = `https://wa.me/919003212591?text=${encodedMessage}`;
+      window.location.href = whatsappURL;
+
+      cart = [];
+      renderCart();
+    }
+
+    // Initialize the product list
+    document.addEventListener("DOMContentLoaded", () => {
+      renderProducts();
+      renderCart();
+    });
+  </script>
+</body>
+</html>
